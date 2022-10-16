@@ -57,11 +57,13 @@ public class NamesrvController {
     private static final InternalLogger LOGGER = InternalLoggerFactory.getLogger(LoggerName.NAMESRV_LOGGER_NAME);
     private static final InternalLogger WATER_MARK_LOG = InternalLoggerFactory.getLogger(LoggerName.NAMESRV_WATER_MARK_LOGGER_NAME);
 
+    //namesrvConfig，nettyServerConfig，nettyClientConfig初始化的时候注入
     private final NamesrvConfig namesrvConfig;
 
     private final NettyServerConfig nettyServerConfig;
     private final NettyClientConfig nettyClientConfig;
 
+    //
     private final ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1,
         new BasicThreadFactory.Builder()
             .namingPattern("NSScheduledThread")
@@ -73,9 +75,12 @@ public class NamesrvController {
             .namingPattern("NSScanScheduledThread")
             .daemon(true)
             .build());
+    //KV配置管理
     private final KVConfigManager kvConfigManager;
+    //routeInfoManager
     private final RouteInfoManager routeInfoManager;
 
+    //remotingClient，remotingServer
     private RemotingClient remotingClient;
     private RemotingServer remotingServer;
 
@@ -87,6 +92,7 @@ public class NamesrvController {
     private BlockingQueue<Runnable> defaultThreadPoolQueue;
     private BlockingQueue<Runnable> clientRequestThreadPoolQueue;
 
+    //配置
     private Configuration configuration;
     private FileWatchService fileWatchService;
 
@@ -129,6 +135,7 @@ public class NamesrvController {
             }
         };
 
+        //客户端请求线程池
         this.clientRequestThreadPoolQueue = new LinkedBlockingQueue<>(this.namesrvConfig.getClientRequestThreadPoolQueueCapacity());
         this.clientRequestExecutor = new ThreadPoolExecutor(
             this.namesrvConfig.getClientRequestThreadPoolNums(),
@@ -143,8 +150,10 @@ public class NamesrvController {
             }
         };
         this.remotingClient = new NettyRemotingClient(this.nettyClientConfig);
+        //这个有什么用？？
         this.remotingClient.updateNameServerAddressList(Arrays.asList(RemotingUtil.getLocalAddress() + ":" + this.nettyServerConfig.getListenPort()));
 
+        //
         this.registerProcessor();
 
         //开启定时任务,移除不活跃的Broker，没隔5秒执行一次
@@ -155,6 +164,7 @@ public class NamesrvController {
         this.scheduledExecutorService.scheduleAtFixedRate(NamesrvController.this.kvConfigManager::printAllPeriodically,
             1, 10, TimeUnit.MINUTES);
 
+        //打印
         this.scheduledExecutorService.scheduleAtFixedRate(() -> {
             try {
                 NamesrvController.this.printWaterMark();
@@ -163,6 +173,7 @@ public class NamesrvController {
             }
         }, 10, 1, TimeUnit.SECONDS);
 
+        //
         if (TlsSystemConfig.tlsMode != TlsMode.DISABLED) {
             // Register a listener to reload SslContext
             try {
@@ -203,6 +214,7 @@ public class NamesrvController {
             }
         }
 
+        //客户端请求注册hook
         initialRpcHooks();
         return true;
     }

@@ -84,6 +84,7 @@ public class NamesrvStartup {
         return null;
     }
 
+    //把命令和配置文件写进内存
     public static void parseCommandlineAndConfigFile(String[] args) throws IOException, JoranException {
         System.setProperty(RemotingCommand.REMOTING_VERSION_KEY, Integer.toString(MQVersion.CURRENT_VERSION));
         //PackageConflictDetect.detectFastjson();
@@ -100,6 +101,7 @@ public class NamesrvStartup {
         nettyClientConfig = new NettyClientConfig();
         nettyServerConfig.setListenPort(9876);
         controllerConfig = new ControllerConfig();
+        //加载配置
         if (commandLine.hasOption('c')) {
             String file = commandLine.getOptionValue('c');
             if (file != null) {
@@ -157,9 +159,10 @@ public class NamesrvStartup {
     }
 
     public static NamesrvController createNamesrvController() {
-
+        //namesrvConfig，nettyServerConfig，nettyClientConfig config类
         final NamesrvController controller = new NamesrvController(namesrvConfig, nettyServerConfig, nettyClientConfig);
         // remember all configs to prevent discard
+        //所有的properties
         controller.getConfiguration().registerConfig(properties);
         return controller;
     }

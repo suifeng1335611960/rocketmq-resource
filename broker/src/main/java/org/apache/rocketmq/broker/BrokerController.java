@@ -251,6 +251,7 @@ public class BrokerController {
     private volatile boolean isTransactionCheckServiceStart = false;
     protected volatile BrokerMemberGroup brokerMemberGroup;
     protected EscapeBridge escapeBridge;
+    //
     protected List<BrokerAttachedPlugin> brokerAttachedPlugins = new ArrayList<>();
     protected volatile long shouldStartTime;
     private BrokerPreOnlineService brokerPreOnlineService;
@@ -1508,6 +1509,7 @@ public class BrokerController {
 
         if (!isIsolated && !this.messageStoreConfig.isEnableDLegerCommitLog() && !this.messageStoreConfig.isDuplicationEnable()) {
             changeSpecialServiceStatus(this.brokerConfig.getBrokerId() == MixAll.MASTER_ID);
+            //oneway 是否一次性请求；forceRegister，是否强制注册；
             this.registerBrokerAll(true, false, true);
         }
 
@@ -1638,6 +1640,7 @@ public class BrokerController {
             topicConfigWrapper.setTopicConfigTable(topicConfigTable);
         }
 
+        //注册broker
         if (forceRegister || needRegister(this.brokerConfig.getBrokerClusterName(),
             this.getBrokerAddr(),
             this.brokerConfig.getBrokerName(),
@@ -1796,6 +1799,7 @@ public class BrokerController {
         this.minBrokerAddrInGroup = minBrokerAddr;
 
         this.changeSpecialServiceStatus(this.brokerConfig.getBrokerId() == minBrokerId);
+        //注册Broker信息
         this.registerBrokerAll(true, false, brokerConfig.isForceRegister());
 
         isIsolated = false;

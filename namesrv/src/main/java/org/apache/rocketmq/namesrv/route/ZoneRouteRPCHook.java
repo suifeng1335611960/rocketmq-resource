@@ -33,6 +33,7 @@ import org.apache.rocketmq.remoting.RPCHook;
 import org.apache.rocketmq.remoting.protocol.RemotingCommand;
 import org.apache.rocketmq.remoting.protocol.RemotingSerializable;
 
+//钩子函数，通过SPI注册进来
 public class ZoneRouteRPCHook implements RPCHook {
 
     @Override

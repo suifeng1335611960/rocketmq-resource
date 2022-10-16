@@ -99,6 +99,7 @@ public abstract class NettyRemotingAbstract {
 
     /**
      * custom rpc hooks
+     *
      */
     protected List<RPCHook> rpcHooks = new ArrayList<RPCHook>();
 

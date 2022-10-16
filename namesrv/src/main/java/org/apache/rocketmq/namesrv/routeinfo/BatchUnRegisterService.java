@@ -34,7 +34,9 @@ import org.apache.rocketmq.logging.InternalLoggerFactory;
  * process.
  */
 public class BatchUnRegisterService extends ServiceThread {
+    //引用routeInfoManager
     private final RouteInfoManager routeInfoManager;
+    //任务队列
     private BlockingQueue<UnRegisterBrokerRequestHeader> unRegisterQueue;
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.NAMESRV_LOGGER_NAME);
 

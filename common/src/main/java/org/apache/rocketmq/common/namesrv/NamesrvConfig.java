@@ -25,11 +25,16 @@ import org.apache.rocketmq.common.MixAll;
 
 public class NamesrvConfig {
 
+    //rocketmq主目录
     private String rocketmqHome = System.getProperty(MixAll.ROCKETMQ_HOME_PROPERTY, System.getenv(MixAll.ROCKETMQ_HOME_ENV));
+    //NameServer存储KV配置属性的持久化路径
     private String kvConfigPath = System.getProperty("user.home") + File.separator + "namesrv" + File.separator + "kvConfig.json";
+    //nameServer默认配置文件路径
     private String configStorePath = System.getProperty("user.home") + File.separator + "namesrv" + File.separator + "namesrv.properties";
+    //
     private String productEnvName = "center";
     private boolean clusterTest = false;
+    //是否支持顺序消息
     private boolean orderMessageEnable = false;
     private boolean returnOrderTopicConfigToBroker = true;
 
@@ -52,10 +57,14 @@ public class NamesrvConfig {
     //默认线程池阻塞队列数
     private int defaultThreadPoolQueueCapacity = 10000;
     /**
+     * 移除不活跃的broker间隔时间，秒
      * Interval of periodic scanning for non-active broker;
      */
     private long scanNotActiveBrokerInterval = 5 * 1000;
 
+    /**
+     * 移除任务，默认队列长度
+     */
     private int unRegisterBrokerQueueCapacity = 3000;
 
     /**
@@ -73,6 +82,7 @@ public class NamesrvConfig {
 
     private volatile boolean enableTopicList = true;
 
+    //是否通知broker=0的主机挂掉的情况
     private volatile boolean notifyMinBrokerIdChanged = false;
 
     /**

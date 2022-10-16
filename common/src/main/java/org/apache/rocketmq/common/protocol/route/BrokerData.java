@@ -39,6 +39,7 @@ public class BrokerData implements Comparable<BrokerData> {
 
     /**
      * Enable acting master or not, used for old version HA adaption,
+     *
      */
     private boolean enableActingMaster = false;
 
