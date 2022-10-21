@@ -215,6 +215,7 @@ public class TraceDataEncoder {
             break;
             default:
         }
+        //压缩成字符串
         transferBean.setTransData(sb.toString());
         for (TraceBean bean : ctx.getTraceBeans()) {
 

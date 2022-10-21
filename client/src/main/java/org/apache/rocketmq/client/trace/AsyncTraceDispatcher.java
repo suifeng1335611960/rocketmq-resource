@@ -50,6 +50,7 @@ import org.apache.rocketmq.remoting.RPCHook;
 
 import static org.apache.rocketmq.client.trace.TraceConstants.TRACE_INSTANCE_NAME;
 
+//异步追踪调度器
 public class AsyncTraceDispatcher implements TraceDispatcher {
 
     private final static InternalLogger log = ClientLogger.getLog();
@@ -57,14 +58,20 @@ public class AsyncTraceDispatcher implements TraceDispatcher {
     private final int queueSize;
     private final int batchSize;
     private final int maxMsgSize;
+    //poll 的时间
     private final long pollingTimeMil;
+    //
     private final long waitTimeThresholdMil;
+    //trace 的发送者
     private final DefaultMQProducer traceProducer;
+    //发送任务
     private final ThreadPoolExecutor traceExecutor;
     // The last discard number of log
     private AtomicLong discardCount;
     private Thread worker;
+    //阻塞队列
     private final ArrayBlockingQueue<TraceContext> traceContextQueue;
+    //
     private final HashMap<String, TraceDataSegment> taskQueueByTopic;
     private ArrayBlockingQueue<Runnable> appenderQueue;
     private volatile Thread shutDownHook;
@@ -73,12 +80,14 @@ public class AsyncTraceDispatcher implements TraceDispatcher {
     private DefaultMQPushConsumerImpl hostConsumer;
     private volatile ThreadLocalIndex sendWhichQueue = new ThreadLocalIndex();
     private String dispatcherId = UUID.randomUUID().toString();
+    //topicname
     private volatile String traceTopicName;
     private AtomicBoolean isStarted = new AtomicBoolean(false);
     private volatile AccessChannel accessChannel = AccessChannel.LOCAL;
     private String group;
     private Type type;
 
+    //
     public AsyncTraceDispatcher(String group, Type type, String traceTopicName, RPCHook rpcHook) {
         // queueSize is greater than or equal to the n power of 2 of value
         this.queueSize = 2048;
@@ -98,6 +107,7 @@ public class AsyncTraceDispatcher implements TraceDispatcher {
         } else {
             this.traceTopicName = TopicValidator.RMQ_SYS_TRACE_TOPIC;
         }
+        //
         this.traceExecutor = new ThreadPoolExecutor(//
             10, //
             20, //
@@ -256,6 +266,7 @@ public class AsyncTraceDispatcher implements TraceDispatcher {
                     long endTime = System.currentTimeMillis() + pollingTimeMil;
                     while (System.currentTimeMillis() < endTime) {
                         try {
+                            //把数据存储下来【节省内存】
                             TraceContext traceContext = traceContextQueue.poll(
                                 endTime - System.currentTimeMillis(), TimeUnit.MILLISECONDS
                             );
@@ -274,6 +285,7 @@ public class AsyncTraceDispatcher implements TraceDispatcher {
                                 // encode traceContext and save it into traceDataSegment
                                 // NOTE if data size in traceDataSegment more than maxMsgSize,
                                 //  a AsyncDataSendTask will be created and submitted
+                                //
                                 TraceTransferBean traceTransferBean = TraceDataEncoder.encoderFromContextBean(traceContext);
                                 traceDataSegment.addTraceTransferBean(traceTransferBean);
                             }
@@ -296,6 +308,7 @@ public class AsyncTraceDispatcher implements TraceDispatcher {
 
         private void sendDataByTimeThreshold() {
             long now = System.currentTimeMillis();
+            //各个topic的data
             for (TraceDataSegment taskInfo : taskQueueByTopic.values()) {
                 if (now - taskInfo.firstBeanAddTime >= waitTimeThresholdMil) {
                     taskInfo.sendAllData();
@@ -313,11 +326,16 @@ public class AsyncTraceDispatcher implements TraceDispatcher {
         }
     }
 
+    /**
+     * 追踪数据【存储】
+     */
     class TraceDataSegment {
+        //第一次添加时间
         private long firstBeanAddTime;
         private int currentMsgSize;
         private final String traceTopicName;
         private final String regionId;
+        // 数据
         private final List<TraceTransferBean> traceTransferBeanList = new ArrayList();
 
         TraceDataSegment(String traceTopicName, String regionId) {
@@ -343,6 +361,7 @@ public class AsyncTraceDispatcher implements TraceDispatcher {
             if (this.traceTransferBeanList.isEmpty()) {
                 return;
             }
+            //数据
             List<TraceTransferBean> dataToSend = new ArrayList(traceTransferBeanList);
             AsyncDataSendTask asyncDataSendTask = new AsyncDataSendTask(traceTopicName, regionId, dataToSend);
             traceExecutor.submit(asyncDataSendTask);
@@ -363,10 +382,11 @@ public class AsyncTraceDispatcher implements TraceDispatcher {
         }
     }
 
-
+    //把数据发送到broker，存储起来，就可以broker查询发送的消息了
     class AsyncDataSendTask implements Runnable {
         private final String traceTopicName;
         private final String regionId;
+        // 数据
         private final List<TraceTransferBean> traceTransferBeanList;
 
         public AsyncDataSendTask(String traceTopicName, String regionId, List<TraceTransferBean> traceTransferBeanList) {

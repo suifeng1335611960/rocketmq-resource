@@ -319,7 +319,7 @@ public class RouteInfoManager {
 
                 if (null != topicConfigWrapper && (isMaster || isPrimeSlave)) {
 
-                    //处理 topicQueueTable
+                    //处理 topicQueueTable,key 是 topicname
                     ConcurrentMap<String, TopicConfig> tcTable =
                         topicConfigWrapper.getTopicConfigTable();
                     if (tcTable != null) {

@@ -24,6 +24,7 @@ public class TraceConstants {
     public static final char CONTENT_SPLITOR = (char) 1;
     public static final char FIELD_SPLITOR = (char) 2;
     public static final String TRACE_INSTANCE_NAME = "PID_CLIENT_INNER_TRACE_PRODUCER";
+    //
     public static final String TRACE_TOPIC_PREFIX = TopicValidator.SYSTEM_TOPIC_PREFIX + "TRACE_DATA_";
     public static final String TO_PREFIX = "To_";
     public static final String FROM_PREFIX = "From_";

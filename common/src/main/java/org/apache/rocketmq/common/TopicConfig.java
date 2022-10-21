@@ -35,6 +35,7 @@ public class TopicConfig {
     };
     //topicname
     private String topicName;
+    //队列个数
     private int readQueueNums = defaultReadQueueNums;
     private int writeQueueNums = defaultWriteQueueNums;
     private int perm = PermName.PERM_READ | PermName.PERM_WRITE;
@@ -42,6 +43,7 @@ public class TopicConfig {
     private int topicSysFlag = 0;
     private boolean order = false;
     // Field attributes should not have ' ' char in key or value, otherwise will lead to decode failure.
+    //属性
     private Map<String, String> attributes = new HashMap<>();
 
     public TopicConfig() {

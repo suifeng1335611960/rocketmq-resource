@@ -83,26 +83,31 @@ public class DefaultMQProducer extends ClientConfig implements MQProducer {
      *
      * See <a href="http://rocketmq.apache.org/docs/core-concept/">core concepts</a> for more discussion.
      */
+    //生产者所属组
     private String producerGroup;
 
     /**
      * Just for testing or demo program
      */
+    //默认Topic
     private String createTopicKey = TopicValidator.AUTO_CREATE_TOPIC_KEY_TOPIC;
 
     /**
      * Number of queues to create per default topic.
      */
+    //默认主题在每一个Broker队列数量
     private volatile int defaultTopicQueueNums = 4;
 
     /**
      * Timeout for sending messages.
      */
+    //发送消息默认超时时间，默认3s
     private int sendMsgTimeout = 3000;
 
     /**
      * Compress message body threshold, namely, message body larger than 4k will be compressed on default.
      */
+    //消息体超过该值则启用压缩，默认4k
     private int compressMsgBodyOverHowmuch = 1024 * 4;
 
     /**
@@ -110,6 +115,7 @@ public class DefaultMQProducer extends ClientConfig implements MQProducer {
      *
      * This may potentially cause message duplication which is up to application developers to resolve.
      */
+    //同步方式发送消息重试次数，默认为2，总共执行3次
     private int retryTimesWhenSendFailed = 2;
 
     /**
@@ -117,16 +123,19 @@ public class DefaultMQProducer extends ClientConfig implements MQProducer {
      *
      * This may potentially cause message duplication which is up to application developers to resolve.
      */
+    //异步方法发送消息重试次数，默认为2
     private int retryTimesWhenSendAsyncFailed = 2;
 
     /**
      * Indicate whether to retry another broker on sending failure internally.
      */
+    //消息重试时选择另外一个Broker时，是否不等待存储结果 就返回，默认为false
     private boolean retryAnotherBrokerWhenNotStoreOK = false;
 
     /**
      * Maximum allowed message body size in bytes.
      */
+    //允许发送的最大消息长度，默认为4M
     private int maxMessageSize = 1024 * 1024 * 4; // 4M
 
     /**
@@ -239,17 +248,22 @@ public class DefaultMQProducer extends ClientConfig implements MQProducer {
      * @param customizedTraceTopic The name value of message trace topic.If you don't config,you can use the default
      * trace topic name.
      */
+    //enableMsgTrace  支持消息跟踪
+
     public DefaultMQProducer(final String namespace, final String producerGroup, RPCHook rpcHook,
         boolean enableMsgTrace, final String customizedTraceTopic) {
         this.namespace = namespace;
         this.producerGroup = producerGroup;
+        //具体实现
         defaultMQProducerImpl = new DefaultMQProducerImpl(this, rpcHook);
         //if client open the message trace feature
         if (enableMsgTrace) {
             try {
+                //异步跟踪
                 AsyncTraceDispatcher dispatcher = new AsyncTraceDispatcher(producerGroup, TraceDispatcher.Type.PRODUCE, customizedTraceTopic, rpcHook);
                 dispatcher.setHostProducer(this.defaultMQProducerImpl);
                 traceDispatcher = dispatcher;
+
                 this.defaultMQProducerImpl.registerSendMessageHook(
                     new SendMessageTraceHookImpl(traceDispatcher));
                 this.defaultMQProducerImpl.registerEndTransactionHook(

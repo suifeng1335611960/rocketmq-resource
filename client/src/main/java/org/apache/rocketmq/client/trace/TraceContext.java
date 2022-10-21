@@ -27,10 +27,13 @@ public class TraceContext implements Comparable<TraceContext> {
 
     private TraceType traceType;
     private long timeStamp = System.currentTimeMillis();
+    //
     private String regionId = "";
     private String regionName = "";
     private String groupName = "";
+    //发送经历的时间
     private int costTime = 0;
+    //是否成功
     private boolean isSuccess = true;
     private String requestId = MessageClientIDSetter.createUniqID();
     private int contextCode = 0;
